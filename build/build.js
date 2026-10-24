@@ -12,19 +12,27 @@ const SKILL_THEME = path.join(__dirname, "apply_theme.js");
 
 // ------------------------------------------------------------------ palette (the book's own)
 const THEME = {
-  name: "Eclipse 2027",
-  headFontFace: "Arial",
-  bodyFontFace: "Arial",
+  name: "Eclipse 2027 — Gold",
+  headFontFace: "EB Garamond",
+  bodyFontFace: "EB Garamond",
   colors: {
-    dk1: "1F1F1D", lt1: "FBFAF7", dk2: "0F1B2D", lt2: "EEF1F5",
-    accent1: "F7B733", accent2: "1D4E89", accent3: "B3261E", accent4: "1F7A4D",
-    accent5: "E88A2C", accent6: "8A8984", hlink: "1D4E89", folHlink: "6D4C8B",
+    dk1: "130E07", lt1: "F0E0B0", dk2: "161F2F", lt2: "FAF3E0",
+    accent1: "C9962B", accent2: "E8B84B", accent3: "1B3A6B", accent4: "5BAD7A",
+    accent5: "2A5BAD", accent6: "8B3A1A", hlink: "E8B84B", folHlink: "C9962B",
   },
 };
 const K = {
-  navy: "0F1B2D", navy2: "1A2A44", navy3: "24385A", paper: "FBFAF7", ink: "1F1F1D", ink2: "4A4A46",
-  muted: "8A8984", sun: "F7B733", sunDeep: "E88A2C", red: "B3261E", green: "1F7A4D", blue: "1D4E89",
-  line: "E4E2DC", card: "FFFFFF", tint: "EEF1F5", ice: "C9D6EA",
+  paper: "130E07",   // slide background (warm black)
+  title: "E8B84B",   // titles and headings (light gold)
+  sun: "E8B84B", sunDeep: "C9962B", gold: "C9962B",
+  navy: "1B3A6B",    // label boxes, table headers, highlight cards
+  navy2: "24304A", navy3: "2E3E5C",
+  card: "161F2F",    // card fill
+  tint: "1B2638",    // alternate table rows
+  ink: "F0E0B0",     // body text (cream)
+  ink2: "D8C79C", muted: "9C8B6E", ice: "F0E0B0",
+  line: "6E5422",    // thin dim-gold rules and table borders
+  blue: "E8B84B", red: "D9714E", green: "5BAD7A",
 };
 const W = 13.333, H = 7.5, M = 0.6;
 
@@ -141,7 +149,7 @@ function fit(key, box) {
 function addImg(slide, key, box, o = {}) {
   const p = fit(key, box);
   slide.addImage({ ...p, objectName: o.name || key, altText: o.alt || key,
-    ...(o.frame ? { line: { color: K.line, width: 0.75 } } : {}) });
+    ...(o.frame ? { line: { color: K.gold, width: 0.75 } } : {}) });
   return p;
 }
 
@@ -157,56 +165,59 @@ async function build() {
   pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
   const C = pres.SchemeColor;
 
-  // layouts
-  const footerText = { text: { text: "كسوف ٢ أغسطس ٢٠٢٧ | محاضرة تأهيلية للمرشدين السياحيين والأثريين",
-    options: { x: 5.2, y: 7.02, w: 7.55, h: 0.3, fontSize: 10, color: K.muted, ...R } } };
-  pres.defineSlideMaster({
-    title: "CONTENT", background: { color: K.paper },
-    objects: [
-      { placeholder: { options: { name: "title", type: "title", x: M, y: 0.28, w: W - 2 * M, h: 0.75,
-        fontSize: 32, bold: true, color: K.navy, valign: "middle", ...R, margin: 0 }, text: "" } },
-      footerText,
-    ],
-    slideNumber: { x: M, y: 7.0, w: 0.6, h: 0.3, fontSize: 10, color: K.muted, align: "left" },
-  });
-  pres.defineSlideMaster({
-    title: "DARK", background: { color: K.navy },
-    objects: [
-      { placeholder: { options: { name: "title", type: "title", x: M, y: 0.28, w: W - 2 * M, h: 0.75,
-        fontSize: 32, bold: true, color: "FFFFFF", valign: "middle", ...R, margin: 0 }, text: "" } },
-      { text: { text: "كسوف ٢ أغسطس ٢٠٢٧ | محاضرة تأهيلية للمرشدين السياحيين والأثريين",
-        options: { x: 5.2, y: 7.02, w: 7.55, h: 0.3, fontSize: 10, color: "8C9AB3", ...R } } },
-    ],
-    slideNumber: { x: M, y: 7.0, w: 0.6, h: 0.3, fontSize: 10, color: "8C9AB3", align: "left" },
-  });
-  pres.defineSlideMaster({ title: "SECTION", background: { color: K.navy }, objects: [] });
-  pres.defineSlideMaster({ title: "COVER", background: { color: K.navy }, objects: [] });
+  // layouts: gold line across the top, title with a gold rule beneath, footer and number at the bottom
+  const chrome = (titleColor) => [
+    { rect: { x: 0, y: 0, w: W, h: 0.06, fill: { color: K.gold } } },
+    { placeholder: { options: { name: "title", type: "title", x: M, y: 0.6, w: W - 2 * M, h: 0.7,
+      fontSize: 30, bold: true, color: titleColor, valign: "middle", ...R, margin: 0 }, text: "" } },
+    { line: { x: M, y: 1.34, w: W - 2 * M, h: 0, line: { color: K.gold, width: 0.75 } } },
+    { text: { text: "كسوف ٢ أغسطس ٢٠٢٧ | محاضرة تأهيلية للمرشدين السياحيين والأثريين",
+      options: { x: 5.2, y: 7.04, w: 7.55, h: 0.3, fontSize: 10, color: K.muted, ...R } } },
+  ];
+  for (const name of ["CONTENT", "DARK"]) {
+    pres.defineSlideMaster({ title: name, background: { color: K.paper }, objects: chrome(K.title),
+      slideNumber: { x: M, y: 7.02, w: 0.6, h: 0.3, fontSize: 10, color: K.gold, align: "left" } });
+  }
+  pres.defineSlideMaster({ title: "SECTION", background: { color: K.paper }, objects: [
+    { rect: { x: 0, y: 0, w: W, h: 0.06, fill: { color: K.gold } } },
+    { rect: { x: 0.25, y: 0.3, w: W - 0.5, h: H - 0.55, fill: { type: "none" }, line: { color: K.gold, width: 1.5 } } },
+  ] });
+  pres.defineSlideMaster({ title: "COVER", background: { color: K.paper }, objects: [] });
 
   let section = "";
-  // title may be [arabic, english]: the English line sits under the Arabic title
+  // title may be [arabic, english]: the English title sits in a small navy label above the Arabic one
+  const kicker = (s, text) => {
+    const up = text.toUpperCase();
+    const w = Math.min(W - 2 * M, 0.6 + up.length * 0.108);
+    s.addShape(pres.shapes.RECTANGLE, { x: W - M - w, y: 0.2, w, h: 0.3, fill: { color: K.navy }, line: { color: K.title, width: 0 },
+      objectName: "kicker-box" });
+    s.addText(up, { x: W - M - w, y: 0.2, w, h: 0.3, fontSize: 9, bold: true, color: K.sun, align: "center", valign: "middle",
+      charSpacing: 2, margin: 0, isTextBox: true, lang: "en-US", objectName: "kicker" });
+  };
   const add = (master, title) => {
     let en;
     if (Array.isArray(title)) [title, en] = title;
     const s = pres.addSlide({ masterName: master, sectionTitle: section });
+    if (en) kicker(s, en);
     if (title) s.addText(title, { placeholder: "title", ...R });
-    if (en) s.addText(en, { x: M, y: 1.0, w: W - 2 * M, h: 0.34, fontSize: 14, italic: true, align: "right", margin: 0,
-      color: master === "DARK" ? K.sun : K.sunDeep, isTextBox: true, lang: "en-US", objectName: "title-en" });
     return s;
   };
 
   // eclipse-disc motif: dark disc + gold ring (+ optional label)
   const disc = (s, x, y, d, label, o = {}) => {
-    s.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: o.fill || K.navy },
+    s.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: o.fill || K.paper },
       line: { color: K.sun, width: o.ring || 2.5 }, objectName: o.name || "disc",
-      shadow: { type: "outer", color: "F7B733", opacity: 0.35, blur: 8, offset: 0, angle: 0 } });
+      shadow: { type: "outer", color: "E8B84B", opacity: 0.35, blur: 8, offset: 0, angle: 0 } });
     if (label) s.addText(label, { x, y, w: d, h: d, align: "center", valign: "middle", fontSize: o.size || 20,
       bold: true, color: K.sun, margin: 0, isTextBox: true, rtlMode: true });
   };
 
-  const card = (s, x, y, w, h, o = {}) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x, y, w, h, rectRadius: 0.12, fill: { color: o.fill || K.card }, line: { color: o.line || K.line, width: 0.75 },
-    objectName: o.name || "card",
-    shadow: o.flat ? undefined : { type: "outer", color: "000000", opacity: 0.08, blur: 6, offset: 2, angle: 90 } });
+  const card = (s, x, y, w, h, o = {}) => {
+    s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: o.fill || K.card },
+      line: { color: o.line || K.gold, width: 0.75 }, objectName: o.name || "card" });
+    if (!o.flat) s.addShape(pres.shapes.RECTANGLE, { x: x + w - 0.07, y, w: 0.07, h, fill: { color: K.gold },
+      line: { color: K.gold, width: 0 }, objectName: (o.name || "card") + "-accent" });
+  };
 
   const caption = (s, text, y = 6.62, o = {}) => s.addText(text, { x: o.x ?? M, y, w: o.w ?? (W - 2 * M), h: 0.3,
     fontSize: 10, color: o.color || K.muted, italic: true, isTextBox: true, ...R, margin: 0 });
@@ -222,10 +233,10 @@ async function build() {
         isTextBox: true, ...R, margin: 0, valign: "top" });
     }
     const th = o.lead ? 4.2 : 5.1;
-    s.addText(bullets(body, { run: { fontSize: fitSize(body, tw, th), color: o.dark ? "E8ECF3" : K.ink },
-      leadColor: o.dark ? K.sun : K.navy }), { x: tx, y: o.lead ? 2.4 : 1.5, w: tw, h: th,
+    s.addText(bullets(body, { run: { fontSize: fitSize(body, tw, th), color: o.dark ? "F0E0B0" : K.ink },
+      leadColor: K.title }), { x: tx, y: o.lead ? 2.4 : 1.5, w: tw, h: th,
       valign: "top", isTextBox: true, margin: 0, ...R });
-    if (o.cap) caption(s, o.cap, 6.62, { color: o.dark ? "8C9AB3" : K.muted });
+    if (o.cap) caption(s, o.cap, 6.62, { color: o.dark ? "9C8B6E" : K.muted });
     s.addNotes(notes);
     return s;
   };
@@ -242,7 +253,7 @@ async function build() {
     s.addShape(pres.shapes.OVAL, { x: 1.35, y: 1.9, w: 3.7, h: 3.7, fill: { color: K.sun, transparency: 60 },
       line: { color: K.sun, width: 0 }, objectName: "corona-inner" });
     disc(s, 1.6, 2.15, 3.2, num, { size: 72, ring: 4, name: "section-disc" });
-    s.addText(title, { x: 5.9, y: 1.85, w: 6.85, h: 2.0, fontSize: 34, bold: true, color: "FFFFFF",
+    s.addText(title, { x: 5.9, y: 1.85, w: 6.85, h: 2.0, fontSize: 34, bold: true, color: K.title,
       valign: "bottom", isTextBox: true, ...R, margin: 0 });
     s.addText(sub, { x: 5.9, y: 3.95, w: 6.85, h: 1.0, fontSize: 17, color: K.ice, valign: "top",
       isTextBox: true, ...R, margin: 0 });
@@ -256,7 +267,7 @@ async function build() {
   const partSlide = (tag, title, en, sub, notes) => {
     const s = pres.addSlide({ masterName: "SECTION", sectionTitle: section });
     disc(s, W - M - 1.5, 2.55, 1.5, tag, { size: 26, name: "part-disc" });
-    s.addText(title, { x: M, y: 2.35, w: W - 2 * M - 1.9, h: 1.0, fontSize: 34, bold: true, color: "FFFFFF",
+    s.addText(title, { x: M, y: 2.35, w: W - 2 * M - 1.9, h: 1.0, fontSize: 34, bold: true, color: K.title,
       isTextBox: true, ...R, margin: 0, valign: "middle" });
     s.addText(en, { x: M, y: 3.35, w: W - 2 * M - 1.9, h: 0.45, fontSize: 17, italic: true, color: K.sun, align: "right",
       isTextBox: true, margin: 0, lang: "en-US" });
@@ -270,9 +281,9 @@ async function build() {
     s.addText("استراحة — ١٠ دقائق", { x: M, y: 4.8, w: W - 2 * M, h: 0.8, fontSize: 36, bold: true, color: K.sun, align: "center",
       isTextBox: true, rtlMode: true, margin: 0 });
     s.addText("Break — 10 minutes", { x: M, y: 5.55, w: W - 2 * M, h: 0.4, fontSize: 16, italic: true, color: K.ice, align: "center", isTextBox: true, margin: 0 });
-    s.addText("بعد الاستراحة: " + next, { x: M, y: 6.1, w: W - 2 * M, h: 0.5, fontSize: 18, color: "FFFFFF", align: "center",
+    s.addText("بعد الاستراحة: " + next, { x: M, y: 6.1, w: W - 2 * M, h: 0.5, fontSize: 18, color: "FAF3E0", align: "center",
       isTextBox: true, rtlMode: true, margin: 0 });
-    s.addText("صورة: مراحل كسوف ٢٠٢٤ — ناسا (NASA/Aubrey Gemignani)", { x: M, y: 6.95, w: W - 2 * M, h: 0.3, fontSize: 10, color: "8C9AB3",
+    s.addText("صورة: مراحل كسوف ٢٠٢٤ — ناسا (NASA/Aubrey Gemignani)", { x: M, y: 6.95, w: W - 2 * M, h: 0.3, fontSize: 10, color: "9C8B6E",
       align: "center", isTextBox: true, rtlMode: true, margin: 0 });
     s.addNotes(label);
     return s;
@@ -283,24 +294,40 @@ async function build() {
   pres.addSection({ title: section });
   {
     const s = pres.addSlide({ masterName: "COVER", sectionTitle: section });
-    addImg(s, "corona", { x: 0, y: 0, w: 6.2, h: H, ax: 0.5 }, { name: "cover-corona", alt: "الهالة الشمسية أثناء الكلية، صورة ناسا" });
-    s.addText("محاضرة تأهيلية للمرشدين السياحيين والأثريين", { x: 6.4, y: 1.0, w: 6.35, h: 0.5, fontSize: 18,
-      color: K.sun, bold: true, isTextBox: true, ...R, margin: 0 });
-    s.addText("الكسوف الكلي للشمس", { x: 6.4, y: 1.55, w: 6.35, h: 0.95, fontSize: 38, bold: true, color: "FFFFFF",
-      isTextBox: true, ...R, margin: 0 });
-    s.addText("٢ أغسطس ٢٠٢٧ — كسوف القرن فوق صعيد مصر", { x: 6.4, y: 2.55, w: 6.35, h: 0.6, fontSize: 22,
-      color: K.ice, isTextBox: true, ...R, margin: 0 });
-    s.addText("The Total Solar Eclipse of 2 August 2027 — a training lecture for tour guides & archaeologists", { x: 6.4, y: 3.15, w: 6.35, h: 0.55,
-      fontSize: 14, italic: true, color: K.sun, align: "right", isTextBox: true, margin: 0, lang: "en-US" });
+    // photo panel (cover-cropped), gold frame and divider, as in the workshop design
+    const d = DIM.corona, pw = 5.9, ph = H - 0.4, r = d.w / d.h;
+    let iw = pw, ih = pw / r; if (ih < ph) { ih = ph; iw = ph * r; }
+    s.addImage({ path: d.path, x: 0.2, y: 0.2, w: iw, h: ih, sizing: { type: "crop", x: (iw - pw) / 2, y: (ih - ph) / 2, w: pw, h: ph },
+      objectName: "cover-corona", altText: "الهالة الشمسية أثناء الكلية، صورة ناسا" });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.12, y: 0.12, w: W - 0.24, h: H - 0.24, fill: { type: "none" }, line: { color: K.gold, width: 2.5 }, objectName: "cover-frame" });
+    s.addShape(pres.shapes.LINE, { x: 6.2, y: 0.12, w: 0, h: H - 0.24, line: { color: K.gold, width: 1.5 }, objectName: "cover-divider" });
+    const tx = 6.65, tw = W - 0.55 - tx;
+    s.addText("TRAINING LECTURE  ·  TOUR GUIDES & ARCHAEOLOGISTS", { x: tx, y: 0.55, w: tw, h: 0.3, fontSize: 9, bold: true,
+      color: K.sun, charSpacing: 3, align: "right", isTextBox: true, margin: 0, lang: "en-US" });
+    s.addText("محاضرة تأهيلية للمرشدين السياحيين والأثريين", { x: tx, y: 0.95, w: tw, h: 0.45, fontSize: 17, color: K.ink2, isTextBox: true, ...R, margin: 0 });
+    s.addText("الكسوف الكلي للشمس", { x: tx, y: 1.45, w: tw, h: 1.25, fontSize: 54, bold: true, color: K.title, isTextBox: true, ...R, margin: 0, valign: "middle" });
+    s.addText("٢ أغسطس ٢٠٢٧ — كسوف القرن فوق صعيد مصر", { x: tx, y: 2.75, w: tw, h: 0.55, fontSize: 22, color: K.ink, isTextBox: true, ...R, margin: 0 });
+    s.addText("The Total Solar Eclipse of 2 August 2027", { x: tx, y: 3.3, w: tw, h: 0.45, fontSize: 18, italic: true, color: K.sunDeep,
+      align: "right", isTextBox: true, margin: 0, lang: "en-US" });
+    // a row of eclipse phases (the cover's ornament): partial → total → partial
+    const phases = [-1.5, -0.95, -0.45, 0, 0.45, 0.95, 1.5], rr = 0.17, gap = 0.62;
+    phases.forEach((off, i) => {
+      const cx = W - 0.55 - rr - i * gap, cy = 4.15;
+      if (off === 0) s.addShape(pres.shapes.OVAL, { x: cx - rr * 1.6, y: cy - rr * 1.6, w: rr * 3.2, h: rr * 3.2, fill: { color: "FAF3E0", transparency: 75 },
+        line: { color: "FAF3E0", width: 0 }, objectName: "ornament-corona" });
+      s.addShape(pres.shapes.OVAL, { x: cx - rr, y: cy - rr, w: 2 * rr, h: 2 * rr, fill: { color: K.sun }, line: { color: K.sun, width: 0 }, objectName: "ornament-sun-" + i });
+      const mr = rr * 1.06;
+      s.addShape(pres.shapes.OVAL, { x: cx + off * rr - mr, y: cy - off * rr * 0.35 - mr, w: 2 * mr, h: 2 * mr, fill: { color: K.paper },
+        line: { color: off === 0 ? "FAF3E0" : K.paper, width: off === 0 ? 0.75 : 0 }, objectName: "ornament-moon-" + i });
+    });
     s.addText([
-      t("الكسوف والخسوف: كيف يحدثان وكم مرة يتكرران", { breakLine: true }),
-      t("الكسوف والخسوف في الحضارة الإسلامية وفي القاهرة الفاطمية", { breakLine: true }),
-      t("مسار كسوف ٢٠٢٧ ومواعيده في المدن والمواقع الأثرية المصرية"),
-    ], { x: 6.4, y: 3.9, w: 6.35, h: 1.5, fontSize: 16, color: "E8ECF3", paraSpaceAfter: 6, isTextBox: true, margin: 0, valign: "top" });
-    s.addText("المادة العلمية: كتاب «الكسوف الكلي للشمس — ٢ أغسطس ٢٠٢٧»", {
-      x: 6.4, y: 5.9, w: 6.35, h: 0.6, fontSize: 12, color: "8C9AB3", isTextBox: true, ...R, margin: 0 });
-    s.addText("صورة الخلفية: ناسا (NASA/Aubrey Gemignani)", { x: 0.25, y: 7.05, w: 4, h: 0.3, fontSize: 9,
-      color: "C9D6EA", isTextBox: true, align: "left", margin: 0 });
+      t("المرحلة الأولى: تعريف الكسوف والخسوف وهندستهما", { breakLine: true }),
+      t("المرحلة الثانية: الكسوف في تاريخ مصر والحضارة الإسلامية", { breakLine: true }),
+      t("المرحلة الثالثة: كسوف ٢٠٢٧ — المواعيد والرصد والتصوير"),
+    ], { x: tx, y: 4.75, w: tw, h: 1.3, fontSize: 15, color: K.ink, paraSpaceAfter: 5, isTextBox: true, margin: 0, valign: "top" });
+    s.addText("المادة العلمية: كتاب «الكسوف الكلي للشمس — ٢ أغسطس ٢٠٢٧»  |  ثلاث ساعات في ثلاث مراحل", { x: tx, y: 6.55, w: tw, h: 0.35,
+      fontSize: 11, color: K.muted, isTextBox: true, ...R, margin: 0 });
+    s.addText("صورة: ناسا (NASA/Aubrey Gemignani)", { x: 0.35, y: 6.95, w: 4, h: 0.25, fontSize: 9, color: "F0E0B0", isTextBox: true, align: "left", margin: 0 });
     s.addNotes(
       "الترحيب وتقديم المحاضرة. هدفنا اليوم أن يخرج المرشد السياحي والأثري قادرًا على ثلاثة أمور: " +
       "أن يشرح للزائر ما سيحدث في السماء بلغة بسيطة دقيقة، وأن يربط الحدث بتاريخ مصر وبالحضارة الإسلامية، " +
@@ -324,7 +351,7 @@ async function build() {
       disc(s, cx + w - 1.0, 1.8, 0.65, "", { name: "why-disc-" + (i + 1), ring: 2 });
       s.addText(big, { x: cx + 0.25, y: 2.55, w: w - 0.5, h: 0.85, fontSize: 36, bold: true, color: K.sunDeep,
         isTextBox: true, ...R, margin: 0 });
-      s.addText(label, { x: cx + 0.25, y: 3.4, w: w - 0.5, h: 0.5, fontSize: 17, bold: true, color: K.navy,
+      s.addText(label, { x: cx + 0.25, y: 3.4, w: w - 0.5, h: 0.5, fontSize: 17, bold: true, color: K.title,
         isTextBox: true, ...R, margin: 0 });
       s.addText(desc, { x: cx + 0.25, y: 3.9, w: w - 0.5, h: 1.15, fontSize: 14, color: K.ink2,
         isTextBox: true, ...R, margin: 0, valign: "top" });
@@ -333,7 +360,7 @@ async function build() {
     card(s, M, 5.45, W - 2 * M, 1.15, { fill: K.navy, line: K.navy, name: "why-question", flat: true });
     s.addText([
       t("السؤال الذي سيسمعه كل مرشد يوم الكسوف: ", { bold: true, color: K.sun }),
-      t("«متى أنزع النظارة؟ وهل أرى الكسوف كليًا من هنا؟» — هذه المحاضرة تعطيك الجواب لكل مدينة وموقع أثري.", { color: "FFFFFF" }),
+      t("«متى أنزع النظارة؟ وهل أرى الكسوف كليًا من هنا؟» — هذه المحاضرة تعطيك الجواب لكل مدينة وموقع أثري.", { color: "FAF3E0" }),
     ], { x: M + 0.35, y: 5.5, w: W - 2 * M - 0.7, h: 1.05, fontSize: 17, valign: "middle", isTextBox: true, margin: 0 });
     s.addNotes(
       "ابدأ بالمفارقة: الأقصر — أغنى مدينة في العالم بالآثار — لم تشهد كسوفًا كليًا منذ نحو ستة قرون ونصف " +
@@ -355,7 +382,7 @@ async function build() {
       disc(s, x + w - 1.15, y + 0.25, 0.85, n, { size: 26, name: "stage-disc-" + n });
       s.addText(lab, { x: x + 0.25, y: y + 0.25, w: w - 1.5, h: 0.42, fontSize: 18, bold: true, color: K.sunDeep, isTextBox: true, ...R, margin: 0 });
       s.addText(time, { x: x + 0.25, y: y + 0.67, w: w - 1.5, h: 0.38, fontSize: 15, color: K.muted, isTextBox: true, ...R, margin: 0 });
-      s.addText(head, { x: x + 0.25, y: y + 1.25, w: w - 0.5, h: 0.85, fontSize: 18, bold: true, color: K.navy, isTextBox: true, ...R, margin: 0, valign: "top" });
+      s.addText(head, { x: x + 0.25, y: y + 1.25, w: w - 0.5, h: 0.85, fontSize: 18, bold: true, color: K.title, isTextBox: true, ...R, margin: 0, valign: "top" });
       s.addText(body, { x: x + 0.25, y: y + 2.1, w: w - 0.5, h: 2.35, fontSize: 14, color: K.ink2, isTextBox: true, ...R, margin: 0, valign: "top" });
     });
     s.addText("استراحتان من ١٠ دقائق بعد المرحلتين الأولى والثانية", { x: M, y: 6.25, w: W - 2 * M, h: 0.4, fontSize: 15, italic: true,
@@ -410,7 +437,7 @@ async function build() {
     cols.forEach((c, i) => {
       const w = 5.85, x = i === 0 ? W - M - w : M, y = 1.5;
       card(s, x, y, w, 5.05, { name: "compare-" + i });
-      s.addShape(pres.shapes.OVAL, { x: x + w - 0.95, y: y + 0.28, w: 0.6, h: 0.6, fill: { color: i === 0 ? K.navy : "8E3B2A" },
+      s.addShape(pres.shapes.OVAL, { x: x + w - 0.95, y: y + 0.28, w: 0.6, h: 0.6, fill: { color: i === 0 ? K.paper : "8B3A1A" },
         line: { color: c.color, width: 2.5 }, objectName: "compare-icon-" + i });
       const [hAr, hEn] = c.head.replace(")", "").split(" (");
       s.addText(hAr, { x: x + 0.3, y: y + 0.18, w: w - 1.4, h: 0.5, fontSize: 24, bold: true, color: c.color,
@@ -419,7 +446,7 @@ async function build() {
         isTextBox: true, margin: 0, lang: "en-US" });
       c.rows.forEach(([k, v], j) => {
         const yy = y + 1.1 + j * 0.78;
-        s.addText(k, { x: x + w - 1.85, y: yy, w: 1.55, h: 0.65, fontSize: 15, bold: true, color: K.navy,
+        s.addText(k, { x: x + w - 1.85, y: yy, w: 1.55, h: 0.65, fontSize: 15, bold: true, color: K.title,
           isTextBox: true, ...R, margin: 0, valign: "top" });
         s.addText(v, { x: x + 0.3, y: yy, w: w - 2.3, h: 0.7, fontSize: 15, color: K.ink,
           isTextBox: true, ...R, margin: 0, valign: "top" });
@@ -475,10 +502,10 @@ async function build() {
         isTextBox: true, ...R, margin: 0 });
       s.addText(nEn, { x: x + 0.15, y: y + h + 0.42, w: w - 0.3, h: 0.26, fontSize: 12, italic: true, color: K.ice, align: "right",
         isTextBox: true, margin: 0, lang: "en-US" });
-      s.addText(desc, { x: x + 0.15, y: y + h + 0.7, w: w - 0.3, h: 0.48, fontSize: 12, color: "E8ECF3",
+      s.addText(desc, { x: x + 0.15, y: y + h + 0.7, w: w - 0.3, h: 0.48, fontSize: 12, color: "F0E0B0",
         isTextBox: true, ...R, margin: 0, valign: "top" });
     });
-    caption(s, "صور ناسا للاستخدام التعليمي: NASA/Aubrey Gemignani (الخاتم، الحبات، الهالة)، NASA/Keegan Barber (الشواظ)", 6.55, { color: "8C9AB3" });
+    caption(s, "صور ناسا للاستخدام التعليمي: NASA/Aubrey Gemignani (الخاتم، الحبات، الهالة)، NASA/Keegan Barber (الشواظ)", 6.55, { color: "9C8B6E" });
     s.addNotes("هذه صور حقيقية من كسوفي ٢٠١٧ و٢٠٢٤. رتّبها للزوار زمنيًا: " +
       "قبل الكلية بثوانٍ تظهر حبات بيلي ثم الخاتم الماسي — وهنا ما زالت النظارة على العين حتى يختفي آخر ضوء. " +
       "ثم الكروموسفير الوردي والشواظ عند حافة القمر، ثم الهالة البيضاء الممتدة ملايين الكيلومترات. " +
@@ -499,7 +526,7 @@ async function build() {
   {
     const s = add("CONTENT", ["كسوف الشمس في العالم بالأرقام (١٩٠١–٢٠٥٠)", "Solar eclipses worldwide in numbers, 1901–2050"]);
     s.addChart(pres.charts.BAR, [{ name: "عدد الكسوفات", labels: ["جزئي", "حلقي", "كلي", "هجين"], values: [120, 106, 99, 11] }], {
-      x: M, y: 1.5, w: 6.9, h: 5.0, barDir: "col", chartColors: ["8A8984", "E88A2C", "0F1B2D", "1D4E89"],
+      x: M, y: 1.5, w: 6.9, h: 5.0, barDir: "col", chartColors: ["9C8B6E", "C9962B", "E8B84B", "2A5BAD"],
       showValue: true, dataLabelPosition: "outEnd", dataLabelFontSize: 14, dataLabelColor: K.ink, dataLabelFontFace: "+mn-lt",
       catAxisLabelFontSize: 15, catAxisLabelColor: K.ink2, catAxisLabelFontFace: "+mn-lt",
       valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
@@ -531,7 +558,7 @@ async function build() {
       ["القمر الدموي (Blood Moon): ", "لا يختفي القمر في الكلية بل يحمرّ بضوء الشروق والغروب المنكسر في جو الأرض"],
       ["تدريب للمرشد: ", "الخسوفان الكليان القادمان فوق مصر فرصة لتدريب المجموعات قبل كل موسم"],
     ], { run: { fontSize: 15, color: K.ink }, gap: 8 }), { x: 7.65, y: 1.5, w: W - M - 7.65, h: 5.0, valign: "top", isTextBox: true, margin: 0, ...R });
-    const hdr = (x) => ({ text: x, options: { bold: true, color: "FFFFFF", fill: { color: K.navy }, align: "center", fontSize: 13, ...R, align: "center" } });
+    const hdr = (x) => ({ text: x, options: { bold: true, color: K.sun, fill: { color: K.navy }, align: "center", fontSize: 13, ...R, align: "center" } });
     const cell = (x, o = {}) => ({ text: x, options: { fontSize: 13, color: K.ink, align: "center", ...R, align: "center", ...o } });
     // RTL: first column on the right → columns listed right-to-left reversed
     const rows = [
@@ -542,7 +569,7 @@ async function build() {
       ["ممتاز: القمر قرب سمت الرأس", "٥٥ دقيقة", "٠٠:٤٣", "كلي", "٢٠/٢١ ديسمبر ٢٠٢٩"],
       ["جيد بعد الغروب", "—", "٢١:٣٣", "جزئي", "١٥ يونيو ٢٠٣٠"],
     ].map((r) => r.slice().reverse());
-    const tbl = rows.map((r, i) => r.map((c, j) => i === 0 ? hdr(c) : cell(c, j === 0 ? { bold: true, color: K.navy } : j === 2 && /^كلي/.test(c) ? { bold: true, color: K.red } : {})));
+    const tbl = rows.map((r, i) => r.map((c, j) => i === 0 ? hdr(c) : cell(c, j === 0 ? { bold: true, color: K.title } : j === 2 && /^كلي/.test(c) ? { bold: true, color: K.red } : {})));
     s.addTable(tbl, { x: M, y: 1.55, w: 6.75, colW: [1.35, 0.9, 1.15, 1.05, 2.3], rowH: 0.62, border: { type: "solid", color: K.line, pt: 0.75 },
       fill: { color: K.card }, valign: "middle", objectName: "lunar-table" });
     caption(s, "حسابات خاصة بهذه المحاضرة بأدوات الكتاب (DE421)؛ الأوقات بتوقيت القاهرة: شتاءً ت.ع+٢ وصيفًا ت.ع+٣ بافتراض استمرار التوقيت الصيفي", 6.0, { x: M, w: 6.75 });
@@ -605,10 +632,10 @@ async function build() {
     const s = add("CONTENT", ["كسوفان فوق القاهرة الفاطمية", "Two solar eclipses over Fatimid Cairo (993 and 1004 CE)"]);
     addImg(s, "e993", { x: 6.95, y: 1.45, w: 5.8, h: 4.3 }, { frame: true });
     addImg(s, "e1004", { x: M, y: 1.45, w: 5.8, h: 4.3 }, { frame: true });
-    s.addText([t("٢٠ أغسطس ٩٩٣م (٢٩ جمادى الآخرة ٣٨٣هـ): ", { bold: true, color: K.navy }),
+    s.addText([t("٢٠ أغسطس ٩٩٣م (٢٩ جمادى الآخرة ٣٨٣هـ): ", { bold: true, color: K.title }),
       t("كسوف كلي مرّ ظله قبالة الساحل الشمالي، وبلغ في القاهرة ٩٦٪ ضحى", { color: K.ink })],
       { x: 6.95, y: 5.85, w: 5.8, h: 0.75, fontSize: 14, isTextBox: true, margin: 0, valign: "top" });
-    s.addText([t("٢٤ يناير ١٠٠٤م (٢٩ ربيع الأول ٣٩٤هـ): ", { bold: true, color: K.navy }),
+    s.addText([t("٢٤ يناير ١٠٠٤م (٢٩ ربيع الأول ٣٩٤هـ): ", { bold: true, color: K.title }),
       t("كسوف هجين، غربت فيه الشمس على القاهرة مكسوفة ٩٧٪ خلف الأهرام", { color: K.ink })],
       { x: M, y: 5.85, w: 5.8, h: 0.75, fontSize: 14, isTextBox: true, margin: 0, valign: "top" });
     s.addNotes("كسوفان شهدتهما قاهرة العزيز بالله والحاكم بأمر الله، زمن ابن يونس، كما يعطيهما الحساب الحديث في الكتاب. " +
@@ -667,7 +694,7 @@ async function build() {
     card(s, 5.35, 1.5, W - M - 5.35, 3.05, { fill: K.navy, line: K.navy, name: "hadith-card", flat: true });
     s.addText([
       t("«إِنَّ الشَّمْسَ وَالْقَمَرَ آيَتَانِ مِنْ آيَاتِ اللَّهِ، لَا يَنْكَسِفَانِ لِمَوْتِ أَحَدٍ وَلَا لِحَيَاتِهِ، فَإِذَا رَأَيْتُمْ ذَلِكَ فَادْعُوا اللَّهَ وَكَبِّرُوا وَصَلُّوا وَتَصَدَّقُوا»",
-        { color: "FFFFFF", fontSize: 21, breakLine: true }),
+        { color: "FAF3E0", fontSize: 21, breakLine: true }),
       t("صحيح البخاري، من حديث عائشة رضي الله عنها", { color: K.sun, fontSize: 14 }),
     ], { x: 5.65, y: 1.65, w: W - M - 5.95, h: 2.75, valign: "middle", isTextBox: true, margin: 0, paraSpaceAfter: 10 });
     s.addText(bullets([
@@ -704,7 +731,7 @@ async function build() {
     steps.forEach(([k, v], i) => {
       const y = 1.5 + i * 1.12;
       card(s, 6.15, y, W - M - 6.15, 1.0, { name: "prayer-" + i });
-      s.addText(k, { x: W - M - 1.9, y: y + 0.1, w: 1.7, h: 0.8, fontSize: 16, bold: true, color: K.navy, isTextBox: true, ...R, margin: 0, valign: "middle" });
+      s.addText(k, { x: W - M - 1.9, y: y + 0.1, w: 1.7, h: 0.8, fontSize: 16, bold: true, color: K.title, isTextBox: true, ...R, margin: 0, valign: "middle" });
       s.addText(v, { x: 6.35, y: y + 0.08, w: W - M - 6.35 - 2.0, h: 0.85, fontSize: 14, color: K.ink, isTextBox: true, ...R, margin: 0, valign: "middle" });
     });
     card(s, M, 1.5, 5.25, 4.35, { fill: K.navy, line: K.navy, name: "dhuhr-card", flat: true });
@@ -714,7 +741,7 @@ async function build() {
     [head, ...rows].forEach((r, i) => {
       const y = 2.4 + i * 0.6;
       r.forEach((c, j) => s.addText(c, { x: M + 0.3 + (2 - j) * 1.55, y, w: 1.55, h: 0.5, fontSize: i === 0 ? 13 : 15,
-        bold: i === 0 || j === 0, color: i === 0 ? "8C9AB3" : (j === 2 ? K.sun : "FFFFFF"), align: "center", isTextBox: true, rtlMode: true, margin: 0 }));
+        bold: i === 0 || j === 0, color: i === 0 ? "9C8B6E" : (j === 2 ? K.sun : "FFFFFF"), align: "center", isTextBox: true, rtlMode: true, margin: 0 }));
     });
     s.addText("الزوال (منتصف النهار الشمسي) محسوب لهذه المحاضرة، ويُرفع الأذان بعده بدقائق.", { x: M + 0.3, y: 5.15, w: 4.65, h: 0.6,
       fontSize: 12, color: K.ice, isTextBox: true, ...R, margin: 0 });
@@ -740,7 +767,7 @@ async function build() {
       const w = 5.85, h = 2.35, x = col === 0 ? W - M - w : M, y = 1.5 + row * (h + 0.25);
       card(s, x, y, w, h, { name: "scholar-" + i });
       disc(s, x + w - 1.0, y + 0.25, 0.7, "", { name: "scholar-disc-" + i, ring: 2 });
-      s.addText(n, { x: x + 0.25, y: y + 0.2, w: w - 1.45, h: 0.5, fontSize: 21, bold: true, color: K.navy, isTextBox: true, ...R, margin: 0 });
+      s.addText(n, { x: x + 0.25, y: y + 0.2, w: w - 1.45, h: 0.5, fontSize: 21, bold: true, color: K.title, isTextBox: true, ...R, margin: 0 });
       s.addText(where, { x: x + 0.25, y: y + 0.68, w: w - 1.45, h: 0.4, fontSize: 13, color: K.sunDeep, bold: true, isTextBox: true, ...R, margin: 0 });
       s.addText(what, { x: x + 0.25, y: y + 1.1, w: w - 0.5, h: 1.15, fontSize: 14, color: K.ink, isTextBox: true, ...R, margin: 0, valign: "top" });
     });
@@ -801,7 +828,7 @@ async function build() {
       const w = 3.85, h = 2.45, x = W - M - w - col * (w + 0.25), y = 1.5 + row * (h + 0.25);
       s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.12, fill: { color: K.navy2 }, line: { color: K.navy3, width: 0.75 }, objectName: "num-" + i });
       s.addText(big, { x: x + 0.3, y: y + 0.3, w: w - 0.6, h: 0.95, fontSize: 40, bold: true, color: K.sun, isTextBox: true, ...R, margin: 0 });
-      s.addText(lab, { x: x + 0.3, y: y + 1.3, w: w - 0.6, h: 0.5, fontSize: 15, bold: true, color: "FFFFFF", isTextBox: true, ...R, margin: 0 });
+      s.addText(lab, { x: x + 0.3, y: y + 1.3, w: w - 0.6, h: 0.5, fontSize: 15, bold: true, color: "FAF3E0", isTextBox: true, ...R, margin: 0 });
       s.addText(sub, { x: x + 0.3, y: y + 1.8, w: w - 0.6, h: 0.45, fontSize: 14, color: K.ice, isTextBox: true, ...R, margin: 0 });
     });
     s.addNotes("أرقام يحفظها المرشد: أطول مدة ٦ دقائق و٢٣ ثانية، أقصى عرض للمسار ٢٥٩ كم، ١١ دولة، الشمس على ارتفاع ٨١°. " +
@@ -885,7 +912,7 @@ async function build() {
       const cols = [0, 2, 3, 4]; // city, C2, C3, duration
       const tbl = [cols.map((c) => head[c]), ...rows.map((r) => cols.map((c) => r[c]))].map((r) => r.slice().reverse())
         .map((r, i) => r.map((c, j) => ({ text: c, options: { ...R, align: "center", fontSize: 15,
-          bold: i === 0 || j === 3 || (j === 0 && i > 0), color: i === 0 ? "FFFFFF" : j === 0 ? K.blue : K.ink,
+          bold: i === 0 || j === 3 || (j === 0 && i > 0), color: i === 0 ? K.sun : j === 0 ? K.blue : K.ink,
           fill: { color: i === 0 ? K.navy : (i % 2 ? K.card : K.tint) } } })));
       s.addTable(tbl, { x, y: 1.5, w, colW: [1.3, 1.45, 1.45, 1.75], rowH: 0.52, border: { type: "solid", color: K.line, pt: 0.5 },
         valign: "middle", objectName: "totality-table-" + (k + 1) });
@@ -914,13 +941,13 @@ async function build() {
     ];
     const head = ["المدينة", "البداية (C1)", "الذروة (Max)", "النهاية (C4)", "الاحتجاب"];
     const tbl = [head, ...rows].map((r, i) => r.slice().reverse().map((c, j) => ({ text: c, options: { ...R, align: "center", fontSize: 14,
-      bold: i === 0 || j === 4 || j === 0, color: i === 0 ? "FFFFFF" : j === 4 ? K.blue : j === 0 ? K.sunDeep : K.ink,
+      bold: i === 0 || j === 4 || j === 0, color: i === 0 ? K.sun : j === 4 ? K.blue : j === 0 ? K.sunDeep : K.ink,
       fill: { color: i === 0 ? K.navy : (i % 2 ? K.card : K.tint) } } })));
     s.addTable(tbl, { x: M, y: 1.5, w: 8.2, colW: [1.4, 1.65, 1.65, 1.65, 1.85], rowH: 0.43, border: { type: "solid", color: K.line, pt: 0.5 },
       valign: "middle", objectName: "partial-table" });
     card(s, 9.1, 1.5, W - M - 9.1, 4.75, { fill: K.navy, line: K.navy, name: "partial-note", flat: true });
     s.addText([t("في هذه المدن", { bold: true, color: K.sun, fontSize: 20, breakLine: true }),
-      t("لا توجد لحظة كلية، فالنظارة على العين من البداية إلى النهاية.", { color: "FFFFFF", fontSize: 16, breakLine: true }),
+      t("لا توجد لحظة كلية، فالنظارة على العين من البداية إلى النهاية.", { color: "FAF3E0", fontSize: 16, breakLine: true }),
       t("الحدث كله نحو ساعتين وأربعين دقيقة، وذروته بين ١٢:٥١ (الإسكندرية) و١٣:٠٨ (أسوان).", { color: K.ice, fontSize: 15 })],
       { x: 9.35, y: 1.7, w: W - M - 9.6, h: 4.35, valign: "top", isTextBox: true, margin: 0, paraSpaceAfter: 12 });
     caption(s, "المصدر: جدول المدن في ملحق الكتاب (محسوب)؛ توقيت مصر الصيفي", 6.62, { x: M, w: 8.2 });
@@ -942,9 +969,9 @@ async function build() {
       showLegend: false, showTitle: true, title: "نسبة تغطية قرص الشمس عند الذروة (٪)", titleFontSize: 13, titleColor: K.ink2,
       titleFontFace: "+mn-lt", barGapWidthPct: 45, objectName: "chart-partial-cities",
     });
-    card(s, 8.25, 1.5, W - M - 8.25, 2.25, { fill: K.red, line: K.red, name: "warn-card", flat: true });
-    s.addText([t("٩٩٫٨٪ ≠ كلي", { bold: true, fontSize: 26, color: "FFFFFF", breakLine: true }),
-      t("الجزء الباقي من الشمس في أسوان أسطع بآلاف المرات من الهالة: لا ليل، ولا هالة، ولا نزع للنظارة أبدًا", { fontSize: 15, color: "FFFFFF" })],
+    card(s, 8.25, 1.5, W - M - 8.25, 2.25, { fill: "8B3A1A", line: K.gold, name: "warn-card", flat: true });
+    s.addText([t("٩٩٫٨٪ ≠ كلي", { bold: true, fontSize: 26, color: "FAF3E0", breakLine: true }),
+      t("الجزء الباقي من الشمس في أسوان أسطع بآلاف المرات من الهالة: لا ليل، ولا هالة، ولا نزع للنظارة أبدًا", { fontSize: 15, color: "FAF3E0" })],
       { x: 8.5, y: 1.62, w: W - M - 8.75, h: 2.0, valign: "middle", isTextBox: true, margin: 0, paraSpaceAfter: 6 });
     addImg(s, "partialVsTotal", { x: 8.25, y: 3.95, w: W - M - 8.25, h: 2.3 }, { frame: true });
     caption(s, "المصدر: جدول المدن في ملحق الكتاب (محسوب)؛ الصورة: الشكل ٢١-٤", 6.62, { x: 8.25, w: W - M - 8.25 });
@@ -981,10 +1008,10 @@ async function build() {
     const head = ["الوقت", "المرحلة", "ماذا ترى؟", "ماذا تفعل؟"];
     const tot = (i) => i === 5;
     const tbl = [head, ...rows].map((r, i) => r.slice().reverse().map((c, j) => ({ text: c, options: { ...R, align: j === 3 ? "center" : "right",
-      fontSize: 15, bold: i === 0 || j === 3 || j === 2, valign: "middle",
-      color: i === 0 ? "FFFFFF" : tot(i) ? (j === 3 ? K.sun : "FFFFFF") : j === 3 ? K.blue : j === 0 ? K.red : K.ink,
+      fontSize: 14, bold: i === 0 || j === 3 || j === 2, valign: "middle",
+      color: i === 0 ? K.sun : tot(i) ? (j === 3 ? K.sun : "FFFFFF") : j === 3 ? K.blue : j === 0 ? K.red : K.ink,
       fill: { color: i === 0 ? K.navy : tot(i) ? K.navy2 : (i % 2 ? K.card : K.tint) } } })));
-    s.addTable(tbl, { x: M, y: 1.5, w: W - 2 * M, colW: [2.6, 4.68, 2.35, 2.5], rowH: 0.55, border: { type: "solid", color: K.line, pt: 0.5 },
+    s.addTable(tbl, { x: M, y: 1.5, w: W - 2 * M, colW: [2.6, 4.68, 2.35, 2.5], rowH: 0.52, border: { type: "solid", color: K.line, pt: 0.5 },
       objectName: "phases-table" });
     caption(s, "الأوقات ونسب الاحتجاب محسوبة لموقع الأقصر (توقيت مصر الصيفي)", 6.62);
     s.addNotes("هذا هو «سيناريو» اليوم كاملًا للأقصر، من التماس الأول إلى الرابع. " +
@@ -1014,20 +1041,20 @@ async function build() {
           objectName: "sun-" + p.time });
       }
       const mr = r * p.rm, mx = cx + p.dx * r, my = cy - p.dy * r;
-      s.addShape(pres.shapes.OVAL, { x: mx - mr, y: my - mr, w: 2 * mr, h: 2 * mr, fill: { color: K.navy },
-        line: { color: p.obs > 0.999 ? "FFFFFF" : "3A4D70", width: p.obs > 0.999 ? 1 : 0.75 }, objectName: "moon-" + p.time });
+      s.addShape(pres.shapes.OVAL, { x: mx - mr, y: my - mr, w: 2 * mr, h: 2 * mr, fill: { color: K.paper },
+        line: { color: p.obs > 0.999 ? "FFFFFF" : "5A4826", width: p.obs > 0.999 ? 1 : 0.75 }, objectName: "moon-" + p.time });
     });
     ph.forEach((p, i) => {
       const col = 4 - (i % 5), row = Math.floor(i / 5);
       const cx = M + cw * (col + 0.5), cy = 2.35 + row * 2.45;
       const ar = (v) => String(v).replace(/[0-9]/g, (dg) => "٠١٢٣٤٥٦٧٨٩"[dg]);
       const pct = p.obs > 0.999 ? "كلي ١٠٠٪" : p.obs < 0.0005 ? "٠٪" : ar((p.obs * 100).toFixed(0)) + "٪";
-      s.addText([t(ar(p.time), { bold: true, color: "FFFFFF", fontSize: 16, breakLine: true, align: "center" }),
+      s.addText([t(ar(p.time), { bold: true, color: "FAF3E0", fontSize: 16, breakLine: true, align: "center" }),
         t((names[i] ? names[i] + " — " : "") + pct, { color: p.obs > 0.999 ? K.sun : K.ice, fontSize: 13, align: "center" })],
         { x: cx - cw / 2 + 0.05, y: cy + 0.95, w: cw - 0.1, h: 0.75, isTextBox: true, margin: 0, valign: "top" });
     });
     s.addText("الشمال إلى أعلى والغرب إلى اليمين؛ الشمس شبه عمودية فوق الرأس (٧١°–٨٢°)", { x: M, y: 6.6, w: W - 2 * M, h: 0.3, fontSize: 11,
-      italic: true, color: "8C9AB3", isTextBox: true, ...R, margin: 0 });
+      italic: true, color: "9C8B6E", isTextBox: true, ...R, margin: 0 });
     s.addNotes("هذه الرسوم محسوبة خصيصًا لهذه المحاضرة من عناصر بِسِل الرسمية (ناسا) لموقع الأقصر: موضع قرص القمر على قرص الشمس في عشر لحظات. " +
       "يدخل القمر من الحافة الغربية العليا للشمس (يمين الصورة إلى أعلى) ويخرج من الحافة الشرقية السفلى. " +
       "نسبة الاحتجاب: ١٢:٠٠ ← ١٤٪، ١٢:٢٠ ← ٣٨٪، ١٢:٤٠ ← ٦٨٪، ١٢:٥٥ ← ٩١٪، ثم الكلية ١٣:٠١:٥٨–١٣:٠٨:١٨، " +
@@ -1189,7 +1216,7 @@ async function build() {
       s.addText(what, { x: x + 0.15, y: 3.6, w: w - 0.3, h: 2.15, fontSize: 14, color: i >= 4 ? "FFFFFF" : K.ink,
         isTextBox: true, ...R, margin: 0, valign: "top" });
     });
-    s.addText([t("بعد الكلية: ", { bold: true, color: K.navy }), t("ساعة و١٨ دقيقة من الجزئي — وقت مناسب للصور الجماعية وجمع النظارات وشرح ما رأيناه وربطه بابن يونس وإخناتون.", { color: K.ink })],
+    s.addText([t("بعد الكلية: ", { bold: true, color: K.title }), t("ساعة و١٨ دقيقة من الجزئي — وقت مناسب للصور الجماعية وجمع النظارات وشرح ما رأيناه وربطه بابن يونس وإخناتون.", { color: K.ink })],
       { x: M, y: 6.0, w: W - 2 * M, h: 0.6, fontSize: 15, isTextBox: true, margin: 0, valign: "middle" });
     s.addNotes("الأوقات في الخطوتين الأخيرتين للأقصر؛ عدّلها حسب بطاقة مدينتك. " +
       "تدرب على عبارتي «انزعوا النظارات» و«النظارات الآن» بالعربية والإنجليزية: Glasses OFF — totality! / Glasses ON — now! " +
@@ -1231,14 +1258,14 @@ async function build() {
       ["كاميرا الثقب", "Pinhole projector", "رصد غير مباشر آمن"],
       ["الزيج", "Zij (astronomical tables)", "جداول فلكية في الحضارة الإسلامية"],
     ];
-    [terms.slice(0, 15), terms.slice(15)].forEach((part, k) => {
-      const s = add("CONTENT", ["مسرد المصطلحات (" + (k === 0 ? "١" : "٢") + " من ٢)", "Bilingual glossary of eclipse terms (" + (k + 1) + "/2)"]);
+    [terms.slice(0, 10), terms.slice(10, 20), terms.slice(20)].forEach((part, k) => {
+      const s = add("CONTENT", ["مسرد المصطلحات (" + "١٢٣"[k] + " من ٣)", "Bilingual glossary of eclipse terms (" + (k + 1) + "/3)"]);
       const head = ["المصطلح", "English", "المعنى"];
       const rows = [head, ...part].map((r, i) => r.slice().reverse().map((c, j) => ({ text: c, options: {
         fontSize: 15, valign: "middle",
-        ...(j === 1 ? { align: "center", lang: "en-US", italic: i > 0, color: i === 0 ? "FFFFFF" : K.blue } : { ...R, color: i === 0 ? "FFFFFF" : (j === 2 ? K.navy : K.ink) }),
+        ...(j === 1 ? { align: "center", lang: "en-US", italic: i > 0, color: i === 0 ? K.sun : K.blue } : { ...R, color: i === 0 ? K.sun : (j === 2 ? K.title : K.ink) }),
         bold: i === 0 || j === 2, fill: { color: i === 0 ? K.navy : (i % 2 ? K.card : K.tint) } } })));
-      s.addTable(rows, { x: M, y: 1.5, w: W - 2 * M, colW: [5.5, 3.6, 3.03], rowH: 0.335, border: { type: "solid", color: K.line, pt: 0.5 },
+      s.addTable(rows, { x: M, y: 1.5, w: W - 2 * M, colW: [5.5, 3.6, 3.03], rowH: 0.46, border: { type: "solid", color: K.line, pt: 0.5 },
         objectName: "glossary-" + (k + 1) });
       s.addNotes("مسرد ثنائي اللغة للمصطلحات التي سيستعملها المرشد مع الزوار الأجانب. " +
         "اطبعه بطاقة صغيرة. والمسرد الكامل في ملحق الكتاب.");
@@ -1261,7 +1288,7 @@ async function build() {
       const col = i < 4 ? 0 : 1, row = i < 4 ? i : i - 4;
       const w = 5.9, x = col === 0 ? W - M - w : M, y = 1.55 + row * 1.25;
       disc(s, x + w - 0.75, y + 0.1, 0.7, "١٢٣٤٥٦٧"[i], { size: 18, name: "msg-disc-" + i, fill: K.navy2 });
-      s.addText(m, { x, y, w: w - 0.95, h: 0.95, fontSize: 17, color: "FFFFFF", isTextBox: true, ...R, margin: 0, valign: "middle" });
+      s.addText(m, { x, y, w: w - 0.95, h: 0.95, fontSize: 17, color: "FAF3E0", isTextBox: true, ...R, margin: 0, valign: "middle" });
     });
     s.addNotes("لخّص الرسائل السبع، ثم افتح باب الأسئلة. " +
       "ذكّر الحضور بأن جداول جميع المدن المصرية الخمسين، وبطاقات ٢٥ مدينة، وخرائط المحافظات، موجودة في الكتاب.");
@@ -1287,25 +1314,29 @@ async function build() {
     const { applyTheme } = require(SKILL_THEME);
     await applyTheme(OUT, THEME);
   }
-  await fixArabicFont(OUT, FONT);
+  await fixArabicFont(OUT, FONTS);
   console.log("wrote", OUT);
 }
 
 // pptxgenjs names only the Latin font, and the theme maps Arabic script to Times New Roman in headings:
 // name the font for the complex-script (Arabic) slot on every run and in the theme, so titles and body
 // text render in one Arabic-capable face everywhere.
-const FONT = "Arial";
-async function fixArabicFont(file, face) {
+const FONTS = { latin: "EB Garamond", head: "Amiri", body: "Noto Naskh Arabic" };
+async function fixArabicFont(file, F) {
   const JSZip = require("jszip");
   const zip = await JSZip.loadAsync(fs.readFileSync(file));
-  const fontTags = `<a:latin typeface="${face}"/><a:cs typeface="${face}"/>`;
+  const tags = (attrs) => {
+    const sz = +((/\bsz="(\d+)"/.exec(attrs) || [])[1] || 1800);
+    const cs = sz >= 2400 ? F.head : F.body;
+    return `<a:latin typeface="${F.latin}"/><a:cs typeface="${cs}"/>`;
+  };
   const before = /<a:(sym|hlinkClick|hlinkMouseOver|rtl|extLst)\b/;
   const fixRun = (xml) => xml
-    .replace(/<a:(rPr|endParaRPr|defRPr)(\s[^>]*?)?\/>/g, (m, tag, attrs = "") => `<a:${tag}${attrs}>${fontTags}</a:${tag}>`)
+    .replace(/<a:(rPr|endParaRPr|defRPr)(\s[^>]*?)?\/>/g, (m, tag, attrs = "") => `<a:${tag}${attrs}>${tags(attrs)}</a:${tag}>`)
     .replace(/<a:(rPr|endParaRPr|defRPr)(\s[^>]*?)?>([\s\S]*?)<\/a:\1>/g, (m, tag, attrs = "", inner) => {
       inner = inner.replace(/<a:(latin|ea|cs)\b[^>]*\/>/g, "");
       const i = inner.search(before);
-      inner = i < 0 ? inner + fontTags : inner.slice(0, i) + fontTags + inner.slice(i);
+      inner = i < 0 ? inner + tags(attrs) : inner.slice(0, i) + tags(attrs) + inner.slice(i);
       return `<a:${tag}${attrs}>${inner}</a:${tag}>`;
     });
   for (const name of Object.keys(zip.files)) {
@@ -1313,8 +1344,10 @@ async function fixArabicFont(file, face) {
       zip.file(name, fixRun(await zip.file(name).async("string")));
     } else if (/^ppt\/theme\/theme\d+\.xml$/.test(name)) {
       let xml = await zip.file(name).async("string");
-      xml = xml.replace(/<a:cs typeface="[^"]*"\/>/g, `<a:cs typeface="${face}"/>`)
-        .replace(/<a:font script="Arab" typeface="[^"]*"\/>/g, `<a:font script="Arab" typeface="${face}"/>`);
+      xml = xml.replace(/(<a:majorFont>[\s\S]*?)<a:cs typeface="[^"]*"\/>/, `$1<a:cs typeface="${F.head}"/>`)
+        .replace(/(<a:minorFont>[\s\S]*?)<a:cs typeface="[^"]*"\/>/, `$1<a:cs typeface="${F.body}"/>`)
+        .replace(/(<a:majorFont>[\s\S]*?)<a:font script="Arab" typeface="[^"]*"\/>/, `$1<a:font script="Arab" typeface="${F.head}"/>`)
+        .replace(/(<a:minorFont>[\s\S]*?)<a:font script="Arab" typeface="[^"]*"\/>/, `$1<a:font script="Arab" typeface="${F.body}"/>`);
       zip.file(name, xml);
     }
   }
@@ -1326,7 +1359,7 @@ function fitSize(items, w, h) {
   const texts = items.map((it) => (Array.isArray(it) ? it.join("") : it));
   for (let f = 20; f > 15; f -= 1) {
     const perLine = (w * 72) / (0.5 * f);
-    const height = texts.reduce((acc, tx) => acc + Math.ceil(tx.length / perLine) * 1.25 * f + 8, 0) / 72;
+    const height = texts.reduce((acc, tx) => acc + Math.ceil(tx.length / perLine) * 1.45 * f + 8, 0) / 72;
     if (height <= h * 0.9) return f;
   }
   return 15;
