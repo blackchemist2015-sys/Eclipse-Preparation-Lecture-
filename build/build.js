@@ -7,7 +7,10 @@ const pptxgen = require("pptxgenjs");
 
 const REPO = process.env.ECLIPSE_REPO || path.resolve(__dirname, "../../eclipse");
 const ASSETS = path.resolve(__dirname, "../assets");
-const OUT = path.resolve(__dirname, "../محاضرة_الكسوف_الكلي_2027.pptx");
+// DECK=events builds the companion deck «الكسوف والخسوف» with the same layouts, so its slides paste cleanly into the lecture
+const DECK = process.env.DECK || "lecture";
+const OUT = path.resolve(__dirname, DECK === "events" ? "../عرض_الكسوف_والخسوف.pptx" : "../محاضرة_الكسوف_الكلي_2027.pptx");
+const FOOTER = DECK === "events" ? "الكسوف والخسوف  |  #السماء_بيتي" : "كسوف ٢ أغسطس ٢٠٢٧ | محاضرة تأهيلية للمرشدين السياحيين والأثريين";
 const SKILL_THEME = path.join(__dirname, "apply_theme.js");
 
 // ------------------------------------------------------------------ palette (the book's own)
@@ -141,6 +144,12 @@ const IMG = {
   a_ph8: "./figures/added/s17_8.jpg",
   a_ph9: "./figures/added/s17_9.jpg",
 };
+if (DECK === "events") {   // pictures of the events deck: build/figures/events/eNN_k.jpg → key e_NN_k
+  for (const f of fs.readdirSync(path.join(__dirname, "figures", "events"))) {
+    const m = /^e(\d\d)_(\d)\.jpg$/.exec(f);
+    if (m) IMG[`e_${m[1]}_${m[2]}`] = `./figures/events/${f}`;
+  }
+}
 const DIM = {};
 
 async function prepareImages() {
@@ -221,7 +230,7 @@ async function build() {
     { placeholder: { options: { name: "title", type: "title", x: M, y: 0.6, w: W - 2 * M, h: 0.7,
       fontSize: 30, bold: true, color: titleColor, valign: "middle", ...R, margin: 0 }, text: "" } },
     { line: { x: M, y: 1.34, w: W - 2 * M, h: 0, line: { color: K.gold, width: 0.75 } } },
-    { text: { text: "كسوف ٢ أغسطس ٢٠٢٧ | محاضرة تأهيلية للمرشدين السياحيين والأثريين",
+    { text: { text: FOOTER,
       options: { x: 5.2, y: 7.04, w: 7.55, h: 0.3, fontSize: 10, color: K.muted, ...R } } },
   ];
   for (const name of ["CONTENT", "DARK"]) {
@@ -412,6 +421,9 @@ async function build() {
     return s;
   };
 
+  if (DECK === "events") {
+    eval(fs.readFileSync(path.join(__dirname, "events_slides.js"), "utf8"));
+  } else {
   // ================================================================== 1. cover
   section = "الافتتاح";
   pres.addSection({ title: section });
@@ -450,7 +462,7 @@ async function build() {
     ], { x: tx, y: 4.75, w: tw, h: 1.3, fontSize: 15, color: K.ink, paraSpaceAfter: 5, isTextBox: true, margin: 0, valign: "top" });
     s.addText("المادة العلمية: كتاب «الكسوف الكلي للشمس — ٢ أغسطس ٢٠٢٧»  |  ثلاث ساعات في ثلاث مراحل", { x: tx, y: 6.55, w: tw, h: 0.35,
       fontSize: 11, color: K.muted, isTextBox: true, ...R, margin: 0 });
-    s.addText("إعداد وتقديم: م. أسامة فتحي — رئيس مجلس إدارة الجمعية الفلكية المصرية", { x: tx, y: 6.1, w: tw, h: 0.4,
+    s.addText("إعداد وتقديم: م. أسامة فتحي — رئيس مجلس إدارة الجمعية المصرية لعلوم الفلك", { x: tx, y: 6.1, w: tw, h: 0.4,
       fontSize: 14, bold: true, color: K.sunDeep, isTextBox: true, ...R, margin: 0 });
     s.addText("صورة: ناسا (NASA/Aubrey Gemignani)", { x: 0.35, y: 6.95, w: 4, h: 0.25, fontSize: 9, color: "F0E0B0", isTextBox: true, align: "left", margin: 0 });
     s.addNotes(
@@ -500,7 +512,7 @@ async function build() {
     photo(s, "a_expert", { x: M, y: 1.55, w: 4.3, h: 5.05 }, { ax: 0.35, alt: "أسامة فتحي مع تلسكوب في رحلة رصد" });
     const tx = M + 4.65, tw = W - M - tx;
     s.addText("م. أسامة فتحي", { x: tx, y: 1.5, w: tw, h: 0.75, fontSize: 34, bold: true, color: K.title, isTextBox: true, ...R, margin: 0 });
-    s.addText([t("رئيس مجلس إدارة الجمعية الفلكية المصرية", { color: K.ink, breakLine: true }),
+    s.addText([t("رئيس مجلس إدارة الجمعية المصرية لعلوم الفلك", { color: K.ink, breakLine: true }),
       t("Eng. Osama Fathi — Chairman of the Board, Egyptian Astronomical Society", { color: K.muted, italic: true, align: "right", rtlMode: false, lang: "en-US", fontSize: 12 })],
       { x: tx, y: 2.25, w: tw, h: 0.75, fontSize: 17, isTextBox: true, margin: 0, valign: "top" });
     const cols = [
@@ -514,7 +526,7 @@ async function build() {
       s.addText(head, { x: x + 0.2, y: y + 0.15, w: cw - 0.4, h: 0.45, fontSize: 17, bold: true, color: K.title, isTextBox: true, ...R, margin: 0 });
       s.addText(bullets(items, { run: { fontSize: 14, color: K.ink }, gap: 6 }), { x: x + 0.2, y: y + 0.7, w: cw - 0.45, h: 2.65, valign: "top", isTextBox: true, margin: 0, ...R });
     });
-    s.addNotes("تعريف بالمحاضر: م. أسامة فتحي، رئيس مجلس إدارة الجمعية الفلكية المصرية، محاضر وباحث متخصص في تاريخ علم الفلك والسياحة الفلكية، " +
+    s.addNotes("تعريف بالمحاضر: م. أسامة فتحي، رئيس مجلس إدارة الجمعية المصرية لعلوم الفلك، محاضر وباحث متخصص في تاريخ علم الفلك والسياحة الفلكية، " +
       "وممثل الرابطة الدولية للسماء المظلمة، وعضو الاتحاد الفلكي الدولي والاتحاد العربي لعلوم الفضاء والفلك. " +
       "بكالوريوس الهندسة الكيميائية من جامعة القاهرة (٢٠٠٨) وماجستير في تاريخ علم الفلك (٢٠١٥).");
   }
@@ -1756,6 +1768,7 @@ async function build() {
     s.addNotes("كل الأرقام قابلة للتحقق: شيفرة الحساب في مستودع الكتاب.");
   }
 
+  }
   await pres.writeFile({ fileName: OUT });
   if (SKILL_THEME) {
     const { applyTheme } = require(SKILL_THEME);
